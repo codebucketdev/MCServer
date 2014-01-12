@@ -991,7 +991,6 @@ static int tolua_cPluginManager_GetAllPlugins(lua_State * tolua_S)
 	const cPluginManager::PluginMap & AllPlugins = self->GetAllPlugins();
 
 	lua_newtable(tolua_S);
-	int newTable = lua_gettop(tolua_S);
 	int index = 1;
 	cPluginManager::PluginMap::const_iterator iter = AllPlugins.begin();
 	while (iter != AllPlugins.end())
@@ -1883,7 +1882,6 @@ static int tolua_cWebPlugin_GetTabNames(lua_State * tolua_S)
 	const cWebPlugin::TabNameList & TabNames = self->GetTabNames();
 
 	lua_newtable(tolua_S);
-	int newTable = lua_gettop(tolua_S);
 	int index = 1;
 	cWebPlugin::TabNameList::const_iterator iter = TabNames.begin();
 	while(iter != TabNames.end())
@@ -1982,118 +1980,72 @@ public:
 	
 	virtual bool OnNextBlock(int a_BlockX, int a_BlockY, int a_BlockZ, BLOCKTYPE a_BlockType, NIBBLETYPE a_BlockMeta, char a_EntryFace) override
 	{
-		if (!m_LuaState.PushFunctionFromRefTable(m_TableRef, "OnNextBlock"))
+		bool res = false;
+		if (!m_LuaState.Call(
+			cLuaState::cTableRef(m_TableRef, "OnNextBlock"),
+			a_BlockX, a_BlockY, a_BlockZ, a_BlockType, a_BlockMeta, a_EntryFace,
+			cLuaState::Return, res
+		))
 		{
 			// No such function in the table, skip the callback
 			return false;
 		}
-		m_LuaState.Push(a_BlockX);
-		m_LuaState.Push(a_BlockY);
-		m_LuaState.Push(a_BlockZ);
-		m_LuaState.Push(a_BlockType);
-		m_LuaState.Push(a_BlockMeta);
-		m_LuaState.Push(a_EntryFace);
-		if (!m_LuaState.CallFunction(1))
-		{
-			return false;
-		}
-		bool res = false;
-		if (lua_isboolean(m_LuaState, -1))
-		{
-			res = (lua_toboolean(m_LuaState, -1) != 0);
-		}
-		lua_pop(m_LuaState, 1);
 		return res;
 	}
 	
 	virtual bool OnNextBlockNoData(int a_BlockX, int a_BlockY, int a_BlockZ, char a_EntryFace) override
 	{
-		if (!m_LuaState.PushFunctionFromRefTable(m_TableRef, "OnNextBlockNoData"))
+		bool res = false;
+		if (!m_LuaState.Call(
+			cLuaState::cTableRef(m_TableRef, "OnNextBlockNoData"),
+			a_BlockX, a_BlockY, a_BlockZ, a_EntryFace,
+			cLuaState::Return, res
+		))
 		{
 			// No such function in the table, skip the callback
 			return false;
 		}
-		m_LuaState.Push(a_BlockX);
-		m_LuaState.Push(a_BlockY);
-		m_LuaState.Push(a_BlockZ);
-		m_LuaState.Push(a_EntryFace);
-		if (!m_LuaState.CallFunction(1))
-		{
-			return false;
-		}
-		bool res = false;
-		if (lua_isboolean(m_LuaState, -1))
-		{
-			res = (lua_toboolean(m_LuaState, -1) != 0);
-		}
-		lua_pop(m_LuaState, 1);
 		return res;
 	}
 	
 	virtual bool OnOutOfWorld(double a_BlockX, double a_BlockY, double a_BlockZ) override
 	{
-		if (!m_LuaState.PushFunctionFromRefTable(m_TableRef, "OnOutOfWorld"))
+		bool res = false;
+		if (!m_LuaState.Call(
+			cLuaState::cTableRef(m_TableRef, "OnOutOfWorld"),
+			a_BlockX, a_BlockY, a_BlockZ,
+			cLuaState::Return, res
+		))
 		{
 			// No such function in the table, skip the callback
 			return false;
 		}
-		m_LuaState.Push(a_BlockX);
-		m_LuaState.Push(a_BlockY);
-		m_LuaState.Push(a_BlockZ);
-		if (!m_LuaState.CallFunction(1))
-		{
-			return false;
-		}
-		bool res = false;
-		if (lua_isboolean(m_LuaState, -1))
-		{
-			res = (lua_toboolean(m_LuaState, -1) != 0);
-		}
-		lua_pop(m_LuaState, 1);
 		return res;
 	}
 	
 	virtual bool OnIntoWorld(double a_BlockX, double a_BlockY, double a_BlockZ) override
 	{
-		if (!m_LuaState.PushFunctionFromRefTable(m_TableRef, "OnIntoWorld"))
+		bool res = false;
+		if (!m_LuaState.Call(
+			cLuaState::cTableRef(m_TableRef, "OnIntoWorld"),
+			a_BlockX, a_BlockY, a_BlockZ,
+			cLuaState::Return, res
+		))
 		{
 			// No such function in the table, skip the callback
 			return false;
 		}
-		m_LuaState.Push(a_BlockX);
-		m_LuaState.Push(a_BlockY);
-		m_LuaState.Push(a_BlockZ);
-		if (!m_LuaState.CallFunction(1))
-		{
-			return false;
-		}
-		bool res = false;
-		if (lua_isboolean(m_LuaState, -1))
-		{
-			res = (lua_toboolean(m_LuaState, -1) != 0);
-		}
-		lua_pop(m_LuaState, 1);
 		return res;
 	}
 	
 	virtual void OnNoMoreHits(void) override
 	{
-		if (!m_LuaState.PushFunctionFromRefTable(m_TableRef, "OnNoMoreHits"))
-		{
-			// No such function in the table, skip the callback
-			return;
-		}
-		m_LuaState.CallFunction(0);
+		m_LuaState.Call(cLuaState::cTableRef(m_TableRef, "OnNoMoreHits"));
 	}
 	
 	virtual void OnNoChunk(void) override
 	{
-		if (!m_LuaState.PushFunctionFromRefTable(m_TableRef, "OnNoChunk"))
-		{
-			// No such function in the table, skip the callback
-			return;
-		}
-		m_LuaState.CallFunction(0);
+		m_LuaState.Call(cLuaState::cTableRef(m_TableRef, "OnNoChunk"));
 	}
 
 protected:

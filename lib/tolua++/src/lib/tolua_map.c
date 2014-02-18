@@ -12,9 +12,9 @@
 ** enhancements, or modifications.
 */
 
-#include "../../include/tolua++.h"
-#include "../../../lua/src/lauxlib.h"
+#include "tolua++.h"
 #include "tolua_event.h"
+#include "lauxlib.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -25,7 +25,7 @@
 /* Create metatable
 	* Create and register new metatable
 */
-static int tolua_newmetatable (lua_State* L, const char * name)
+static int tolua_newmetatable (lua_State* L, char* name)
 {
 	int r = luaL_newmetatable(L,name);
 

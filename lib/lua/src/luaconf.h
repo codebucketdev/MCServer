@@ -237,6 +237,7 @@
 ** You can define it to get all options, or change specific options
 ** to fit your specific needs.
 */
+#define LUA_COMPAT_ALL
 #if defined(LUA_COMPAT_ALL)	/* { */
 
 /*
@@ -295,6 +296,13 @@
 ** module functions 'module' (Lua) and 'luaL_register' (C).
 */
 #define LUA_COMPAT_MODULE
+
+#define LUA_PATHSEP ";"
+#define LUA_GLOBALSINDEX -10002
+#define luaL_getn(L,i) ((int)lua_objlen(L, i))
+#define lua_open luaL_newstate
+#define lua_getfenv lua_getuservalue
+#define lua_setfenv lua_setuservalue
 
 #endif				/* } */
 
